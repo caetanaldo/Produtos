@@ -1,5 +1,4 @@
 import Product from "../models/Product.js";
-import Category from "../models/Category.js";
 import { sequelize } from "../database/sqlConnection.js";
 import { Op } from "sequelize";
 
