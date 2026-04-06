@@ -1,34 +1,39 @@
 import { useState } from "react"
 
 function App() {
+  const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [msg, setMsg] = useState("")
 
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
 
-    fetch("http://localhost:5000/auth/login", {
+    const url = isLogin
+      ? "http://localhost:5000/auth/login"
+      : "http://localhost:5000/auth/register"
+
+    fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        email,
-        password
-      })
+      body: JSON.stringify({ email, password })
     })
       .then(res => res.json())
       .then(data => {
         console.log(data)
 
-        if (data.token) {
-          setMsg("✅ Login feito com sucesso")
-
-          // salvar token
-          localStorage.setItem("token", data.token)
+        if (isLogin) {
+          if (data.token) {
+            setMsg("✅ Login feito com sucesso")
+            localStorage.setItem("token", data.token)
+          } else {
+            setMsg("❌ Erro no login")
+          }
         } else {
-          setMsg("❌ Erro no login")
+          setMsg("✅ Usuário cadastrado")
+          setIsLogin(true)
         }
       })
       .catch(() => setMsg("❌ Erro ao conectar"))
@@ -36,9 +41,9 @@ function App() {
 
   return (
     <div style={styles.container}>
-      <h1>🔐 Login</h1>
+      <h1>{isLogin ? "🔐 Login" : "📝 Cadastro"}</h1>
 
-      <form onSubmit={handleLogin} style={styles.form}>
+      <form onSubmit={handleSubmit} style={styles.form}>
         <input
           type="email"
           placeholder="Email"
@@ -58,18 +63,29 @@ function App() {
         />
 
         <button type="submit" style={styles.button}>
-          Entrar
+          {isLogin ? "Entrar" : "Cadastrar"}
         </button>
       </form>
 
       <p>{msg}</p>
+
+      <button
+        onClick={() => {
+          setIsLogin(!isLogin)
+          setMsg("")
+        }}
+        style={styles.switch}
+      >
+        {isLogin
+          ? "Não tem conta? Cadastrar"
+          : "Já tem conta? Fazer login"}
+      </button>
     </div>
   )
 }
 
 export default App
 
-// 💅 estilo simples
 const styles = {
   container: {
     height: "100vh",
@@ -96,6 +112,13 @@ const styles = {
     border: "none",
     background: "#333",
     color: "#fff",
+    cursor: "pointer"
+  },
+  switch: {
+    marginTop: "10px",
+    background: "none",
+    border: "none",
+    color: "blue",
     cursor: "pointer"
   }
 }
