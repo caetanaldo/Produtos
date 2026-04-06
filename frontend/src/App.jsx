@@ -1,119 +1,101 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 function App() {
-  const [produtos, setProdutos] = useState([])
-  const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [msg, setMsg] = useState("")
 
-  // 🔥 buscar produtos
-  const fetchProdutos = () => {
-    fetch("http://localhost:5000/products")
-      .then(res => res.json())
-      .then(data => setProdutos(data))
-  }
-
-  useEffect(() => {
-    fetchProdutos()
-  }, [])
-
-  // 🔥 cadastrar produto
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault()
 
-    fetch("http://localhost:5000/products", {
+    fetch("http://localhost:5000/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name,
-        price: Number(price)
+        email,
+        password
       })
     })
-      .then(() => {
-        setName("")
-        setPrice("")
-        fetchProdutos()
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+
+        if (data.token) {
+          setMsg("✅ Login feito com sucesso")
+
+          // salvar token
+          localStorage.setItem("token", data.token)
+        } else {
+          setMsg("❌ Erro no login")
+        }
       })
+      .catch(() => setMsg("❌ Erro ao conectar"))
   }
 
   return (
     <div style={styles.container}>
-      <h1>🛍️ Produtos</h1>
+      <h1>🔐 Login</h1>
 
-      {/* FORM */}
-      <form onSubmit={handleSubmit} style={styles.form}>
+      <form onSubmit={handleLogin} style={styles.form}>
         <input
-          type="text"
-          placeholder="Nome do produto"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
           style={styles.input}
         />
 
         <input
-          type="number"
-          placeholder="Preço"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
           style={styles.input}
         />
 
         <button type="submit" style={styles.button}>
-          Adicionar
+          Entrar
         </button>
       </form>
 
-      {/* LISTA */}
-      <div style={styles.grid}>
-        {produtos.map(p => (
-          <div key={p.id} style={styles.card}>
-            <h2>{p.name}</h2>
-            <p>R$ {p.price}</p>
-          </div>
-        ))}
-      </div>
+      <p>{msg}</p>
     </div>
   )
 }
 
 export default App
 
-// 💅 estilos simples
+// 💅 estilo simples
 const styles = {
   container: {
-    padding: "20px",
-    fontFamily: "Arial",
-    textAlign: "center"
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    fontFamily: "Arial"
   },
   form: {
-    marginBottom: "20px"
+    display: "flex",
+    flexDirection: "column",
+    width: "250px"
   },
   input: {
     padding: "10px",
-    margin: "5px",
+    margin: "5px 0",
     borderRadius: "8px",
     border: "1px solid #ccc"
   },
   button: {
-    padding: "10px 15px",
+    padding: "10px",
     borderRadius: "8px",
     border: "none",
     background: "#333",
     color: "#fff",
     cursor: "pointer"
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "10px"
-  },
-  card: {
-    border: "1px solid #ccc",
-    padding: "10px",
-    borderRadius: "10px",
-    background: "#f9f9f9"
   }
 }
