@@ -4,7 +4,7 @@ import { Op } from "sequelize";
 const productController = {
   getAll: async (req, res) => {
     try {
-      const { category, minPrice, maxPrice, order } = req.query;
+      const { minPrice, maxPrice, order } = req.query;
 
       const where = {};
 
@@ -63,6 +63,7 @@ const productController = {
 
   create: async (req, res) => {
     try {
+      const { name, price } = req.body;
 
       const product = await Product.create({
         name,
@@ -86,6 +87,7 @@ const productController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
+      const { name, price } = req.body;
 
       const product = await Product.findByPk(id);
 
@@ -97,19 +99,7 @@ const productController = {
         });
       }
 
-      if (categoryId) {
-        const category = await Category.findByPk(categoryId);
-
-        if (!category) {
-          return res.status(400).json({
-            success: false,
-            data: null,
-            message: "Categoria inválida",
-          });
-        }
-      }
-
-      await product.update({ name, price, categoryId });
+      await product.update({ name, price });
 
       return res.status(200).json({
         success: true,
