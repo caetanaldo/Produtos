@@ -1,5 +1,4 @@
 import Product from "../models/Product.js";
-import { sequelize } from "../database/sqlConnection.js";
 import { Op } from "sequelize";
 
 const productController = {
