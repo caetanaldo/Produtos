@@ -1,15 +1,17 @@
-import express, { json } from "express";
+import express from "express";
+import cors from 'cors'
 import { connect } from "./database/sqlConnection.js";
 import productRouter from "./routes/productRoutes.js";
 import authRouter from "./routes/authRouter.js";
-
 
 import 'dotenv/config'
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use(cors()) // 🔥 ESSA LINHA
 app.use(express.json());
+
 app.use('/products', productRouter)
 app.use('/auth', authRouter)
 
