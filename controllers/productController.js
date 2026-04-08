@@ -5,14 +5,11 @@ import { Op } from "sequelize";
 const productController = {
   getAll: async (req, res) => {
     try {
-      const { category, minPrice, maxPrice, order } = req.query;
+      const { minPrice, maxPrice, order } = req.query;
 
       const where = {};
 
-      if (category) where.category = category;
-
       if (minPrice || maxPrice) {
-        console.log("aaaa")
         where.price = {};
         if (minPrice) where.price[Op.gte] = Number(minPrice);
         if (maxPrice) where.price[Op.lte] = Number(maxPrice);
@@ -21,10 +18,6 @@ const productController = {
       const products = await Product.findAll({
         where,
         order: [["price", order === "desc" ? "DESC" : "ASC"]],
-        include: {
-          model: Category,
-          as: "category",
-        },
       });
 
       return res.status(200).json({
@@ -45,12 +38,7 @@ const productController = {
     try {
       const { id } = req.params;
 
-      const product = await Product.findByPk(id, {
-        include: {
-          model: Category,
-          as: "category",
-        },
-      });
+      const product = await Product.findByPk(id);
 
       if (!product) {
         return res.status(404).json({
@@ -76,22 +64,11 @@ const productController = {
 
   create: async (req, res) => {
     try {
-      const { name, price, categoryId } = req.body;
-
-      const category = await Category.findByPk(categoryId);
-
-      if (!category) {
-        return res.status(400).json({
-          success: false,
-          data: null,
-          message: "Categoria inválida",
-        });
-      }
+      const { name, price } = req.body;
 
       const product = await Product.create({
         name,
         price,
-        categoryId,
       });
 
       return res.status(201).json({
@@ -111,7 +88,7 @@ const productController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, price, categoryId } = req.body;
+      const { name, price } = req.body;
 
       const product = await Product.findByPk(id);
 
@@ -123,19 +100,7 @@ const productController = {
         });
       }
 
-      if (categoryId) {
-        const category = await Category.findByPk(categoryId);
-
-        if (!category) {
-          return res.status(400).json({
-            success: false,
-            data: null,
-            message: "Categoria inválida",
-          });
-        }
-      }
-
-      await product.update({ name, price, categoryId });
+      await product.update({ name, price });
 
       return res.status(200).json({
         success: true,

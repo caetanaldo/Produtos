@@ -8,7 +8,7 @@ import 'dotenv/config'
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-app.use(json());
+app.use(express.json());
 app.use('/products', productRouter)
 app.use('/auth', authRouter)
 
