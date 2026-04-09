@@ -7,7 +7,20 @@ const authController = {
   register: async (req, res) => {
     try {
       const { email, password, role } = req.body;
-      console.log(role)
+
+      // 🔥 VALIDAÇÃO AQUI
+      if (!password || password.length < 6 || password.length > 8) {
+        return res.status(400).json({
+          message: "Senha deve ter entre 6 e 8 caracteres"
+        });
+      }
+
+      if (!email || !password) {
+        return res.status(400).json({
+          message: "Email e senha são obrigatórios"
+        });
+      }
+
       // hash da senha
       const hashedPassword = await bcrypt.hash(password, 10);
 
